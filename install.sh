@@ -106,13 +106,13 @@ else
   exit 1
 fi
 
-read -p "Public server Port that forwarding to Local SSH port (required): " REMOTE_PORT
+read -p "Public server forwarding port (required): " REMOTE_PORT
 if [ -z "$REMOTE_PORT" ]; then
-  echo "Public server forwarding to local SSH port is required."
+  echo "Public server forwarding port is required."
   exit 1
 fi
 
-read -p "Local SSH port [22]: " LOCAL_PORT
+read -p "Local receiving port [22]: " LOCAL_PORT
 LOCAL_PORT=${LOCAL_PORT:-22}
 
 read -p "Local Service name ["backtun-$SERVER_IP.service"]: " LOCAL_SERVICE_NAME
