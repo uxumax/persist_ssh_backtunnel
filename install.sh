@@ -6,6 +6,13 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+# Determine the correct username
+if [ -n "$SUDO_USER" ]; then
+  USERNAME="$SUDO_USER"
+else
+  USERNAME="root"
+fi
+
 # Prompt for the necessary parameters with default values
 read -p "Public server IP (required): " SERVER_IP
 if [ -z "$SERVER_IP" ]; then
@@ -19,11 +26,8 @@ SERVER_USER=${SERVER_USER:-user}
 read -p "Public server SSH port [22]: " SERVER_PORT
 SERVER_PORT=${SERVER_PORT:-22}
 
-read -p "Public server SSH key path [~/.ssh/id_rsa]: " SSH_KEY_PATH
-SSH_KEY_PATH=${SSH_KEY_PATH:-~/.ssh/id_rsa}
-
-# Expand the tilde to the home directory
-SSH_KEY_PATH=${SSH_KEY_PATH/#\~/$HOME}
+read -p "Public server SSH key path [$HOME/.ssh/id_rsa]: " SSH_KEY_PATH
+SSH_KEY_PATH=${SSH_KEY_PATH:-$HOME/.ssh/id_rsa}
 
 if [ ! -f "$SSH_KEY_PATH" ]; then
   echo "SSH key file does not exist at $SSH_KEY_PATH."
@@ -70,7 +74,7 @@ After=network.target
 ExecStart=/usr/bin/ssh -i $SSH_KEY_PATH -o StrictHostKeyChecking=accept-new -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -p $SERVER_PORT -N -R $REMOTE_PORT:localhost:$LOCAL_PORT $SERVER_USER@$SERVER_IP
 Restart=always
 RestartSec=3
-User=$SUDO_USER
+User=$USERNAME
 
 [Install]
 WantedBy=multi-user.target
