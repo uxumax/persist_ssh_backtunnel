@@ -115,7 +115,7 @@ fi
 read -p "Local SSH port [22]: " LOCAL_PORT
 LOCAL_PORT=${LOCAL_PORT:-22}
 
-read -p "Local Service name ["backtun-$SERVER_IP.service"]: " $LOCAL_SERVICE_NAME
+read -p "Local Service name ["backtun-$SERVER_IP.service"]: " LOCAL_SERVICE_NAME
 LOCAL_SERVICE_NAME=${LOCAL_SERVICE_NAME:-"backtun-$SERVER_IP.service"}
 
 # Create the systemd service unit file
