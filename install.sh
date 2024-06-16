@@ -6,28 +6,84 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+HOST=$1
+
 # Determine the correct username
 if [ -n "$SUDO_USER" ]; then
   USERNAME="$SUDO_USER"
+  HOME="/home/$USERNAME"
 else
   USERNAME="root"
 fi
 
-# Prompt for the necessary parameters with default values
-read -p "Public server IP (required): " SERVER_IP
-if [ -z "$SERVER_IP" ]; then
-  echo "Public server IP is required."
-  exit 1
+# Function to check if Host exists in ~/.ssh/config
+host_exists() {
+  local host=$1
+  awk -v host="$host" '
+    $1 == "Host" && $2 == host { print "exists"; exit }
+  ' ~/.ssh/config
+}
+
+# Function to fetch option by Host  ~/.ssh/config
+get_ssh_option() {
+  local host=$1
+  local option=$2
+  awk -v host="$host" -v option="$option" '
+    $1 == "Host" { in_host_block = ($2 == host); next }
+    in_host_block && $1 == option { print $2 }
+  ' ~/.ssh/config
+}
+
+if [ ! -z "${HOST}" ]; then
+
+  if [ ! -f "$HOME/.ssh/config" ]; then
+    echo "$HOME/.ssh/config does not exists"
+    exit 1
+  fi
+
+  if [[ -z "$(host_exists "$HOST")" ]]; then
+    echo "Error: Host '$HOST' not found in ~/.ssh/config"
+    exit 1
+  fi
+
+  SERVER_IP=$(get_ssh_option "$HOST" "Hostname")
+  SERVER_USER=$(get_ssh_option "$HOST" "User")
+  SERVER_PORT=$(get_ssh_option "$HOST" "Port")
+  SSH_KEY_PATH=$(get_ssh_option "$HOST" "IdentityFile")
+  SSH_KEY_PATH="${SSH_KEY_PATH/#\~/$HOME}"  # conver ~ to $HOME
 fi
 
-read -p "Public server User [user]: " SERVER_USER
-SERVER_USER=${SERVER_USER:-user}
+# Prompt for the necessary parameters with default values
+if [[ -z "${SERVER_IP}" ]]; then
+  read -p "Public server IP (required): " SERVER_IP
+  if [ -z "$SERVER_IP" ]; then
+    echo "Public server IP is required."
+    exit 1
+  fi
+else
+  echo "Server IP: $SERVER_IP" 
+fi
 
-read -p "Public server SSH port [22]: " SERVER_PORT
-SERVER_PORT=${SERVER_PORT:-22}
+if [[ -z "${SERVER_USER}" ]]; then
+  read -p "Public server User [user]: " SERVER_USER
+  SERVER_USER=${SERVER_USER:-user}
+else
+  echo "Public server user: $SERVER_USER" 
+fi
 
-read -p "Public server SSH key path [$HOME/.ssh/id_rsa]: " SSH_KEY_PATH
-SSH_KEY_PATH=${SSH_KEY_PATH:-$HOME/.ssh/id_rsa}
+if [[ -z "${SERVER_PORT}" ]]; then
+  read -p "Public server SSH port [22]: " SERVER_PORT
+  SERVER_PORT=${SERVER_PORT:-22}
+else
+  echo "Public server port: $SERVER_PORT" 
+fi
+
+if [[ -z "${SSH_KEY_PATH}" ]]; then
+  read -p "Public server SSH key path [$HOME/.ssh/id_rsa]: " SSH_KEY_PATH
+  SSH_KEY_PATH=${SSH_KEY_PATH:-$HOME/.ssh/id_rsa}
+else
+  echo "Public server ssh key: $SSH_KEY_PATH" 
+fi
 
 if [ ! -f "$SSH_KEY_PATH" ]; then
   echo "SSH key file does not exist at $SSH_KEY_PATH."
