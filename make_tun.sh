@@ -115,8 +115,21 @@ fi
 read -p "Local receiving port [22]: " LOCAL_PORT
 LOCAL_PORT=${LOCAL_PORT:-22}
 
-read -p "Local Service name ["backtun-$SERVER_IP.service"]: " LOCAL_SERVICE_NAME
-LOCAL_SERVICE_NAME=${LOCAL_SERVICE_NAME:-"backtun-$SERVER_IP.service"}
+# Function to check if the service name already exists and prompt for a new one if it does
+set_service_name() {
+    local service_name
+    read -p "Local Service name [backtun-$SERVER_IP.service]: " service_name
+    service_name=${service_name:-"backtun-$SERVER_IP.service"}
+
+    if [[ -f "/etc/systemd/system/$service_name" ]]; then
+        echo "Service already exists: /etc/systemd/system/$service_name"
+        set_service_name # Recursively call the function to prompt for a new name
+    else
+        LOCAL_SERVICE_NAME="$service_name"
+    fi
+}
+# Initial function call to start the checking process
+set_service_name
 
 # Create the systemd service unit file
 SERVICE_FILE="/etc/systemd/system/$LOCAL_SERVICE_NAME"
