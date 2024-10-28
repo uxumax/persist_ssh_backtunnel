@@ -1,6 +1,6 @@
 # SSH Reverse Tunnel Persistence
 
-This project sets up a persistent SSH reverse tunnel from a local machine to a server with a public IP address. The tunnel is managed via a `systemd` service, ensuring it is always running and automatically restarted if it fails.
+Bash script that creates a persistent SSH reverse tunnel from your local machine to a public server. It uses a systemd service to keep the tunnel active and auto-restarts if it fails, making sure your connection is always up.
 
 ## Script Usage
 
