@@ -4,6 +4,8 @@ Bash script that creates a persistent SSH reverse tunnel from your local machine
 
 ## Script Usage
 
+There are 2 types of usage: `Manual Mode` and `SSH Config Mode`
+
 ### Manual Mode
 
 When running the `make_tun.sh` without specifying a host from the SSH config, you will be prompted to enter the necessary parameters manually.
