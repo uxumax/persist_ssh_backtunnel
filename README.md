@@ -8,9 +8,12 @@ There are 2 types of usage: `Manual Mode` and `SSH Config Mode`
 
 ### Manual Mode
 
-When running the `make_tun.sh` without specifying a host from the SSH config, you will be prompted to enter the necessary parameters manually.
+Just run
+```bash
+sudo ./make_tun.sh
+```
 
-The `make_tun.sh` asks for the following parameters:
+The script asks for the following parameters:
 
 1. **Public server IP** (required)  
    The IP address or hostname of the server with a public IP.
@@ -35,7 +38,7 @@ The `make_tun.sh` asks for the following parameters:
 
 ### SSH Config Mode
 
-When specifying a host from the SSH config as a command-line argument, the make_tun reads the SSH configuration to populate the necessary parameters.
+Specify a host from the SSH config as a command-line argument, the make_tun reads the SSH configuration to populate the necessary parameters.
 
 Example usage:
 ```bash
